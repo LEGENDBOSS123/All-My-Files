@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script>
+            window.onload = function() {
+                var ip = "0.0.0.0";
+                var port = 4000;
+                var socket = new WebSocket("ws://"+ip+":"+port);
+                var getPage = JSON.stringify({"type":0});
+                var files = [];
+                socket.onopen = function(e) {socket.send(getPage);}
+                socket.onmessage = function(e) {data = JSON.parse(e.data);if(data["type"]==0){files.push({"file":data["file"],"data":data["data"]});if(data["finished"] == 1){var d;for(var i = 0; i<files.length;i++){if(files[i]["file"].substring(files[i]["file"].length-5)==".html"){d = atob(files[i]["data"]);}}for(var i = 0; i<files.length;i++){if(files[i]["file"].substring(files[i]["file"].length-5)!=".html"){var bd = files[i]["data"];var ba = Uint8Array.from(atob(bd).split('').map(char => char.charCodeAt(0)));var blob = new Blob([ba]);var u = URL.createObjectURL(blob,{type:"image/png"});d = d.replace(files[i]["file"],u);}}this.close();document.open();document.write(d);document.close();}}else{socket.send(getPage);}}};
+        </script>
+    </head>
+    <body>
+    </body>
+</html>
