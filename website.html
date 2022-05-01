@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<body>
+<div id = "replace_this">
+<h1>HELLO CLICK DA BUTTON</h1>
+
+<button type="button1" onclick="SendMessage(button1,button1)">Request data</button>
+
+</div> 
+<script>
+function SendMessage(message, Function) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            Function(this)
+        }
+    };
+    xhttp.open("GET", "button1", true);
+    xhttp.send();
+}
+    
+function button1(xhttp){
+    console.log("hi")
+    document.getElementById("replace_this").innerHTML = xhttp.responseText;
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,98 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <time.h>
+#include <SDL2/SDL.h>
+
+#define xval 2300
+#define yval 1400
+    
+const Uint8 bg[3] = {0, 0, 0};
+
+struct PLAYER {
+    int x;
+    int y;
+    int limit;
+    int anglex;
+    int angley;
+    int fov;
+    int xvel;
+    int yvel;
+    float gravity;
+};
+
+struct PIXEL {
+    Uint8 color[3];
+    int x;
+    int y;
+    int z;
+};
+
+struct SCREEN {
+    struct PIXEL *PIXELS;    
+};
+
+void SETUP_SCREEN(struct SCREEN *s){
+    s->PIXELS = malloc((xval*yval)*sizeof(int));
+    for (int y=0; y < yval; y++){
+        for (int x=0; x < xval; x++){
+            struct PIXEL p = {*bg, x, y, 0};
+            s->PIXELS[y][x] = p;
+        }
+    }
+}
+
+void DRAW_SCREEN(SDL_Renderer *r, const struct SCREEN* const s){
+    for (int y=0; y < yval; y++){
+        for (int x=0; x < xval; x++){
+            SDL_SetRenderDrawColor(r, 
+                                   s->PIXELS[y][x].color[0], 
+                                   s->PIXELS[y][x].color[1], 
+                                   s->PIXELS[y][x].color[2], 
+                                   0xff);
+            SDL_RenderDrawPoint(r, 
+                                s->PIXELS[y][x].x, 
+                                s->PIXELS[y][x].y);
+        }
+    } 
+    SDL_RenderPresent(r);
+}
+
+
+int main() {    
+    struct PLAYER P = {0, 0, 20, 0, 0, 90, 0, 0, 0.5};
+    struct SCREEN S;
+    SETUP_SCREEN(&S);
+   
+    const Uint8* keystate = SDL_GetKeyboardState(NULL);
+    if (keystate == NULL) {
+        return -1;
+    }
+    SDL_Init(SDL_INIT_VIDEO);
+    SDL_Window *window = SDL_CreateWindow("3D GAME", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, xval, yval, 0);
+    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    SDL_Event event;
+    
+    bool running = true;
+    while (running)
+    {
+        while(SDL_PollEvent(&event))
+        {
+            if(event.type == SDL_QUIT)
+            {
+                running = false;
+            }
+        }
+
+        SDL_RenderClear(renderer);
+        DRAW_SCREEN(renderer, &S);  
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xff);
+        SDL_RenderPresent(renderer);        
+    }
+
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+
+    return 0;
+}
